@@ -1,73 +1,69 @@
 var Client = require('./model');
 var _ = require('lodash');
-var logger = require('../../util/logger');
+var logger = require('../../utils/logger');
 
 exports.params = function(req, res, next, id) {
-  Client.findById(id)
-    .populate('author', 'username')
-    .exec()
-    .then(function(post) {
-      if (!post) {
-        next(new Error('No post with that id'));
-      } else {
-        req.post = post;
-        next();
-      }
-    }, function(err) {
-      next(err);
-    });
+    Client.findById(id)
+        .then(function(client) {
+            if (!client) {
+                next(new Error('No client with that id'));
+            } else {
+                req.client = client;
+                next();
+            }
+        }, function(err) {
+            next(err);
+        });
 };
 
 exports.get = function(req, res, next) {
-  Post.find({})
-    .populate('author categories')
-    .exec()
-    .then(function(posts){
-      res.json(posts);
-    }, function(err){
-      next(err);
-    });
+    Client.find({})
+        .then(function(clients) {
+            res.json(clients);
+        }, function(err) {
+            next(err);
+        });
 };
 
 exports.getOne = function(req, res, next) {
-  var post = req.post;
-  res.json(post);
+    var client = req.client;
+    res.json(client);
 };
 
 exports.put = function(req, res, next) {
-  var post = req.post;
+    var client = req.client;
 
-  var update = req.body;
+    var update = req.body;
 
-  _.merge(post, update);
+    _.merge(client, update);
 
-  post.save(function(err, saved) {
-    if (err) {
-      next(err);
-    } else {
-      res.json(saved);
-    }
-  })
+    client.save(function(err, saved) {
+        if (err) {
+            next(err);
+        } else {
+            res.json(saved);
+        }
+    })
 };
 
 exports.post = function(req, res, next) {
-  var newpost = req.body;
-  newpost.author = req.user._id;
-  Post.create(newpost)
-    .then(function(post) {
-      res.json(post);
-    }, function(err) {
-      logger.error(err);
-      next(err);
-    });
+    var newClient = req.body;
+    newClient.author = req.user._id;
+    Client.create(newClient)
+        .then(function(client) {
+            res.json(client);
+        }, function(err) {
+            logger.error(err);
+            next(err);
+        });
 };
 
 exports.delete = function(req, res, next) {
-  req.post.remove(function(err, removed) {
-    if (err) {
-      next(err);
-    } else {
-      res.json(removed);
-    }
-  });
+    req.post.remove(function(err, removed) {
+        if (err) {
+            next(err);
+        } else {
+            res.json(removed);
+        }
+    });
 };

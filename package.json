@@ -4,6 +4,7 @@
   "description": "Base web service app for triptyk",
   "main": "index.js",
   "scripts": {
+    "start": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -13,9 +14,13 @@
   "author": "The Crazy Digital Painter",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.14.2",
     "colors": "^1.1.2",
+    "cors": "^2.7.1",
     "express": "^4.13.4",
     "lodash": "^4.0.1",
-    "mongoose": "^4.3.7"
+    "method-override": "^2.3.5",
+    "mongoose": "^4.3.7",
+    "morgan": "^1.6.1"
   }
 }
