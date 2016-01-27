@@ -2,6 +2,6 @@ module.exports = {
     // disbable logging for testing
     logging: false,
     db: {
-        url: 'mongodb://localhost/invoice-test'
+        url: 'mongodb://localhost/clients-test'
     }
 };

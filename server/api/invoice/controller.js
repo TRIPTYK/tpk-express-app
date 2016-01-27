@@ -1,14 +1,14 @@
-var Client = require('./model');
+var Invoice = require('./model');
 var _ = require('lodash');
 var logger = require('../../utils/logger');
 
 exports.params = function(req, res, next, id) {
-    Client.findById(id)
-        .then(function(client) {
-            if (!client) {
-                next(new Error('No client with that id'));
+    Invoice.findById(id)
+        .then(function(invoice) {
+            if (!invoice) {
+                next(new Error('No invoice with that id'));
             } else {
-                req.client = client;
+                req.invoice = invoice;
                 next();
             }
         }, function(err) {
@@ -17,29 +17,27 @@ exports.params = function(req, res, next, id) {
 };
 
 exports.get = function(req, res, next) {
-    Client.find({})
-        .populate('invoices')
-        .exec()
-        .then(function(clients) {
-            res.json(clients);
+    Invoice.find({})
+        .then(function(invoices) {
+            res.json(invoices);
         }, function(err) {
             next(err);
         });
 };
 
 exports.getOne = function(req, res, next) {
-    var client = req.client;
-    res.json(client);
+    var invoice = req.invoice;
+    res.json(invoice);
 };
 
 exports.put = function(req, res, next) {
-    var client = req.client;
+    var invoice = req.invoice;
 
     var update = req.body;
 
-    _.merge(client, update);
+    _.merge(invoice, update);
 
-    client.save(function(err, saved) {
+    invoice.save(function(err, saved) {
         if (err) {
             next(err);
         } else {
@@ -49,10 +47,10 @@ exports.put = function(req, res, next) {
 };
 
 exports.post = function(req, res, next) {
-    var newClient = req.body;
-    Client.create(newClient)
-        .then(function(client) {
-            res.json(client);
+    var newInvoice = req.body;
+    Invoice.create(newInvoice)
+        .then(function(invoice) {
+            res.json(invoice);
         }, function(err) {
             logger.error(err);
             next(err);

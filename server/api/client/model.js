@@ -6,7 +6,11 @@ var ClientSchema = new Schema({
         type: String,
         required: true,
         unique: true
-    }
+    },
+    town: {
+    	type: String 
+    },
+    invoices: [{ type: Schema.Types.ObjectId, ref: 'invoice' }]
 });
 
 module.exports = mongoose.model('client', ClientSchema);
