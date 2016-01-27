@@ -3,6 +3,7 @@ var app = express();
 var api = require('./api/api');
 var config = require('./config/config');
 var logger = require('./utils/logger');
+var errorHandler = require('express-error-middleware');
 
 // db.url is different depending on NODE_ENV
 require('mongoose').connect(config.db.url);
@@ -17,17 +18,8 @@ require('./middleware/appMiddlware')(app);
 app.use('/api', api);
 
 // set up global error handling
-
-app.use(function(err, req, res, next) {
-    // if error thrown from jwt validation check
-    if (err.name === 'UnauthorizedError') {
-        res.status(401).send('Invalid token');
-        return;
-    }
-
-    logger.error(err.stack);
-    res.status(500).send('Oops');
-});
+app.use(errorHandler.NotFoundMiddleware); // if a request is not handled before this a NotFoundError will be sent into next
+app.use(errorHandler.ApiErrorsMiddleware);
 
 // export the app for testing
 module.exports = app;
