@@ -8,9 +8,9 @@ var errorHandler = require('express-error-middleware');
 // db.url is different depending on NODE_ENV
 require('mongoose').connect(config.db.url);
 
-// if (config.seed) {
-//     require('./util/seed');
-// }
+if (config.seed) {
+    require('./utils/seed');
+}
 // setup the app middlware
 require('./middleware/appMiddlware')(app);
 
