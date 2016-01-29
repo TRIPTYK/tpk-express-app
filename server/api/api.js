@@ -4,5 +4,6 @@ var router = require('express').Router();
 // for all our resources
 router.use('/clients', require('./client/routes'));
 router.use('/invoices', require('./invoice/routes'));
+router.use('/participants', require('./participant/routes'));
 
 module.exports = router;
