@@ -1,13 +1,37 @@
 /*global describe it assert*/
 var assert = require('chai').assert;
-describe('Array', function() {
-    describe('#indexOf()', function() {
-        it('should return -1 when the value is not present', function() {
-            assert.equal(-1, [1, 2, 3].indexOf(1),'this test completed great');
+var api = require('supertest').agent("http://localhost:3000");
+describe('API SERVER', function() {
+    describe('/', function() {
+        it("Home Should give a 404", function(done) {
+            api.get('/')
+                .expect(404)
+                .end(function(err, res) {
+                    assert.equal(res.status, 404, res.status + " sould equal 404");
+                    done();
+                });
         });
-        it('should return -1 when the value is not present', function() {
-            assert.equal(-1, [1, 2, 3].indexOf(1));
+    });
+    describe('/api', function() {
+        it("Home Should give a 404", function(done) {
+            api.get('/api')
+                .expect(404)
+                .end(function(err, res) {
+                    assert.equal(res.status, 404, res.status + " sould equal 404");
+                    done();
+                });
         });
-        
+    });
+
+    describe('/api/clients', function() {
+        it("Home Should give a json with an array", function(done) {
+            api.get('/api/clients')
+                .expect(200)
+                .expect("Content-type", /json/)
+                .end(function(err, res) {
+                    assert.isArray(res.body);
+                    done();
+                });
+        });
     });
 });
