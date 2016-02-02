@@ -1,14 +1,14 @@
-var Participant = require('./model');
+var User = require('./model');
 var _ = require('lodash');
 var logger = require('../../utils/logger');
 
 exports.params = function(req, res, next, id) {
-    Participant.findById(id)
-        .then(function(participant) {
-            if (!participant) {
-                next(new Error('No participant with that id'));
+    User.findById(id)
+        .then(function(user) {
+            if (!user) {
+                next(new Error('No user with that id'));
             } else {
-                req.participant = participant;
+                req.user = user;
                 next();
             }
         }, function(err) {
@@ -17,27 +17,29 @@ exports.params = function(req, res, next, id) {
 };
 
 exports.get = function(req, res, next) {
-    Participant.find({})
-    .then(function(participants) {
-        res.json(participants);
-    }, function(err) {
-        next(err);
-    });
+    User.find({})
+        .populate('invoices')
+        .exec()
+        .then(function(users) {
+            res.json(users);
+        }, function(err) {
+            next(err);
+        });
 };
 
 exports.getOne = function(req, res, next) {
-    var participant = req.participant;
-    res.json(participant);
+    var user = req.user;
+    res.json(user);
 };
 
 exports.put = function(req, res, next) {
-    var participant = req.participant;
+    var user = req.user;
 
     var update = req.body;
 
-    _.merge(participant, update);
+    _.merge(user, update);
 
-    participant.save(function(err, saved) {
+    user.save(function(err, saved) {
         if (err) {
             next(err);
         } else {
@@ -47,10 +49,10 @@ exports.put = function(req, res, next) {
 };
 
 exports.post = function(req, res, next) {
-    var newParticipant = req.body;
-    Participant.create(newParticipant)
-        .then(function(participant) {
-            res.json(participant);
+    var newUser = req.body;
+    User.create(newUser)
+        .then(function(user) {
+            res.json(user);
         }, function(err) {
             logger.error(err);
             next(err);

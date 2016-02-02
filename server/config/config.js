@@ -9,8 +9,15 @@ var config = {
     expireTime: 24 * 60 * 10,
     secrets: {
         jwt: process.env.JWT || 'gumball'
+    },
+    jwtOptions: {
+        secretOrKey: 'secret',
+        issuer: "triptyk",
+        audience: "triptyk.eu"
     }
 };
+
+
 
 process.env.NODE_ENV = process.env.NODE_ENV || config.dev;
 config.env = process.env.NODE_ENV;
