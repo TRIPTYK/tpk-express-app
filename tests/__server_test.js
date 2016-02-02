@@ -1,53 +1,37 @@
 /*global describe it assert*/
-var chai = require('chai');
-//var chaiHttp = require('chai-http');
-//chai.use(chaiHttp);
-//var server = require('../server/server');
-var should = require('chai').should();
-var assert = chai.assert;
+var assert = require('chai').assert;
+var api = require('supertest').agent("http://localhost:3000");
+describe('API SERVER', function() {
+    describe('/', function() {
+        it("Home Should give a 404", function(done) {
+            api.get('/')
+                .expect(404)
+                .end(function(err, res) {
+                    assert.equal(res.status, 404, res.status + " sould equal 404");
+                    done();
+                });
+        });
+    });
+    describe('/api', function() {
+        it("Home Should give a 404", function(done) {
+            api.get('/api')
+                .expect(404)
+                .end(function(err, res) {
+                    assert.equal(res.status, 404, res.status + " sould equal 404");
+                    done();
+                });
+        });
+    });
 
-var request = require('supertest')
-  , express = require('express');
-var app = express();
-
-
-
-
-
-describe('Array', function() {
-    describe('#indexOf()', function() {
-
-  		// it('List all clients', function(done) {
-		//   chai.request(server)
-		//     .get('/api/clients')
-		//     .end(function(err, res){
-		//       res.should.have.status(200);
-		//       res.should.be.json;
-		//       done();
-		//     });
-		// });
-
-		// it('Create new client', function(done) {
-		//   chai.request(server)
-		//     .post('/api/clients')
-		//     .send({'name': 'Test Insert'})
-		//     .end(function(err, res){
-		//       res.should.have.status(200);
-		//       res.should.be.json;
-		//       res.body.should.be.a('object');
-		//       res.body.should.have.property('name');
-		//       res.body.name.should.equal('Test Insert');
-		//       done();
-		//     });
-		// });
-
-		it('Get all clients', function(done) {
-			request(app)
-			.get('/api/clients')
-            .expect('Content-Type', "text/html; charset=utf-8")
-			.expect(200, done);	
-		});
-		
-        
+    describe('/api/clients', function() {
+        it("Home Should give a json with an array", function(done) {
+            api.get('/api/clients')
+                .expect(200)
+                .expect("Content-type", /json/)
+                .end(function(err, res) {
+                    assert.isArray(res.body);
+                    done();
+                });
+        });
     });
 });
