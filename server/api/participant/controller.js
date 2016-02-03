@@ -1,6 +1,8 @@
-var Participant = require('./model');
-var _ = require('lodash');
-var logger = require('../../utils/logger');
+var config                = require('../../config/config');
+var Participant           = require('./model');
+var _                     = require('lodash');
+var logger                = require('../../utils/logger');
+var jwt                   = require('jsonwebtoken'); // used to create, sign, and verify tokens
 
 exports.params = function(req, res, next, id) {
     Participant.findById(id)
@@ -17,12 +19,26 @@ exports.params = function(req, res, next, id) {
 };
 
 exports.get = function(req, res, next) {
-    Participant.find({})
-    .then(function(participants) {
-        res.json(participants);
-    }, function(err) {
-        next(err);
+
+
+    jwt.verify(req.session.token, config.secrets.jwt, function(err, decoded) {
+      if(decoded === req.session.user.username)
+      {
+        console.log('Has token');
+      } 
     });
+
+    if(req.isAuthenticated()){
+        Participant.find({})
+        .then(function(participants) {
+            res.json(participants);
+        }, function(err) {
+            next(err);
+        });    
+    } else {
+        res.json('{error}');
+    }
+    
 };
 
 exports.getOne = function(req, res, next) {

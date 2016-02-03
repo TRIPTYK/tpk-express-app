@@ -1,30 +1,83 @@
-var passport = require('passport');
-var config = require('../config/config');
-var PassportLocalStrategy = require('passport-local');
+var config                = require('../config/config');
 var PassportConfig     	  = require('../config/passport');
-var JwtStrategy = require('passport-jwt').Strategy;
+var passport              = require('passport');
+var PassportLocalStrategy = require('passport-local');
+var jwt                   = require('jsonwebtoken'); // used to create, sign, and verify tokens
+
 
 module.exports = function(app) {
-    passport.use(new JwtStrategy(config.jwtOptions, function(jwt_payload, done) {
-	    User.findOne({id: jwt_payload.sub}, function(err, user) {
-	    	console.log(user);
-	        if (err) {
-	            return done(err, false);
-	        }
-	        if (user) {
-	            done(null, user);
-	        } else {
-	            done(null, false);
-	            // or you could create a new account 
-	        }
-	    });
-	}));
+
+	
 
 	app.use(passport.initialize());
 	app.use(passport.session());
 
+	app.route('/getToken')
+		.post(
+			function(req, res, next) {
+				passport.authenticate('local', function(err, user, info) {
+					
+					if (err) { return next(err); }
+
+					if (!user) { return res.redirect('/login'); }
+
+					req.logIn(user, function(err) {
+						if (err) { return next(err); }
+
+						var token = jwt.sign(user, config.secrets.jwt, {
+				          expiresInMinutes: 1440 // expires in 24 hours
+				        });
+
+				        //return the information including token as JSON
+
+				        res.json({
+				          success: true,
+				          token: token
+				        });
+
+
+					});
+
+				})(req, res, next);
+			}
+		)
+		.get(function (req, res) {
+			res.send('<form action="/login" method="post"><div><label>Username:</label><input type="text" name="username"/></div><div><label>Password:</label><input type="password" name="password"/></div><div><input type="submit" value="Log In"/></div></form>');
+		}
+	);
+
 	app.route('/login')
-		.post(login)
+		.post(
+			function(req, res, next) {
+				passport.authenticate('local', function(err, user, info) {
+					
+					if (err) { return next(err); }
+
+					if (!user) { return res.redirect('/login'); }
+
+					req.logIn(user, function(err) {
+						if (err) { return next(err); }
+
+						var token = jwt.sign(user.username, config.secrets.jwt, {
+				          expiresInMinutes: 1440 // expires in 24 hours
+				        });
+
+				        // return the information including token as JSON
+				        // res.json({
+				        //   success: true,
+				        //   token: token
+				        // });
+
+						req.session.user = user;
+				        req.session.token = token;
+
+						return res.redirect('/api/participants');
+						//return res.redirect('/users/' + req.user.username);
+					});
+
+				})(req, res, next);
+			}
+		)
 		.get(function (req, res) {
 			res.send('<form action="/login" method="post"><div><label>Username:</label><input type="text" name="username"/></div><div><label>Password:</label><input type="password" name="password"/></div><div><input type="submit" value="Log In"/></div></form>');
 		}
@@ -40,29 +93,4 @@ module.exports = function(app) {
 	  res.redirect('/login');
 	}
 
-	function login(req, res, next) {
-	  // ask passport to authenticate
-	  passport.authenticate('local', function(err, user, info) {
-
-	    if (err) {
-	      return next(err);
-	    }
-	    if (!user) {
-	      req.session.messages = info.message;
-	      return res.redirect('/login');
-	    }
-
-	    req.logIn(user, function(err) {
-	      if (err) {
-	        req.session.messages = "Error";
-	        return next(err);
-	      }
-
-	      // set the message
-	      req.session.messages = "Login successfully";
-	      return res.redirect('/api/clients');
-	    });
-	    
-	  })(req, res, next);
-	}
 };

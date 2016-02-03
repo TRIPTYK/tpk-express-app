@@ -1,6 +1,7 @@
-var mongoose     = require('mongoose');
-var Hash 		 = require('password-hash');
-var Schema       = mongoose.Schema;
+var config                = require('../../config/config');
+var mongoose              = require('mongoose');
+var Hash 		          = require('password-hash');
+var Schema                = mongoose.Schema;
 var passportLocalMongoose = require('passport-local-mongoose');
 
 
@@ -20,7 +21,7 @@ UserSchema.plugin(passportLocalMongoose);
 
 UserSchema.statics.authenticate = function(username, password, callback) {
     this.findOne({ username: username }, function(error, user) {
-
+    	//Login OK
         if (user && Hash.verify(password, user.password)) {
             callback(null, user);
         } else if (user || !error) {
