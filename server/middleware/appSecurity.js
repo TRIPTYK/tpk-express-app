@@ -16,34 +16,40 @@ module.exports = function(app) {
 		.post(
 			function(req, res, next) {
 				passport.authenticate('local', function(err, user, info) {
+
+					console.log(user);
 					
 					if (err) { return next(err); }
-
-					if (!user) { return res.redirect('/login'); }
 
 					req.logIn(user, function(err) {
 						if (err) { return next(err); }
 
-						var token = jwt.sign(user, config.secrets.jwt, {
-				          expiresInMinutes: 1440 // expires in 24 hours
+						var token = jwt.sign(user, config.secrets.jwt, { expiresIn: 86400 });
+
+				        var yToken = jwt.sign(user, req.body.secret, {
+				          expiresIn: 86400 
 				        });
 
-				        //return the information including token as JSON
+				        if(token === yToken){
+				        	//return the information including token as JSON
+					        req.session.user = user;
+					        req.session.token = token;
+					        res.json({
+					          success: true,
+					          token: token
+					        });
+				        } else {
+				        	res.json({
+					          success: false
+					        });
+				        }
 
-				        res.json({
-				          success: true,
-				          token: token
-				        });
-
+			        	
 
 					});
 
 				})(req, res, next);
 			}
-		)
-		.get(function (req, res) {
-			res.send('<form action="/login" method="post"><div><label>Username:</label><input type="text" name="username"/></div><div><label>Password:</label><input type="password" name="password"/></div><div><input type="submit" value="Log In"/></div></form>');
-		}
 	);
 
 	app.route('/login')
@@ -53,13 +59,15 @@ module.exports = function(app) {
 					
 					if (err) { return next(err); }
 
+
+
 					if (!user) { return res.redirect('/login'); }
 
 					req.logIn(user, function(err) {
 						if (err) { return next(err); }
 
-						var token = jwt.sign(user.username, config.secrets.jwt, {
-				          expiresInMinutes: 1440 // expires in 24 hours
+						var token = jwt.sign(user, config.secrets.jwt, {
+				          expiresIn: 86400 // expires in 24 hours
 				        });
 
 				        // return the information including token as JSON
