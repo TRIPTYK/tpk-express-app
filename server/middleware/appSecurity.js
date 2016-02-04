@@ -16,8 +16,6 @@ module.exports = function(app) {
 		.post(
 			function(req, res, next) {
 				passport.authenticate('local', function(err, user, info) {
-
-					console.log(user);
 					
 					if (err) { return next(err); }
 
@@ -26,25 +24,11 @@ module.exports = function(app) {
 
 						var token = jwt.sign(user, config.secrets.jwt, { expiresIn: 86400 });
 
-				        var yToken = jwt.sign(user, req.body.secret, {
-				          expiresIn: 86400 
-				        });
-
-				        if(token === yToken){
-				        	//return the information including token as JSON
-					        req.session.user = user;
-					        req.session.token = token;
-					        res.json({
-					          success: true,
-					          token: token
-					        });
-				        } else {
-				        	res.json({
-					          success: false
-					        });
-				        }
-
-			        	
+			        	//return the information including token as JSON
+				        res.json({
+				          success: true,
+				          token: token
+				        });			        	
 
 					});
 

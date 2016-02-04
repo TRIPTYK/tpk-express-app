@@ -23,6 +23,7 @@ UserSchema.statics.authenticate = function(username, password, callback) {
     this.findOne({ username: username }, function(error, user) {
     	//Login OK
         if (user && Hash.verify(password, user.password)) {
+            //User/Password verified
             callback(null, user);
         } else if (user || !error) {
             // Email or password was invalid (no MongoDB error)
